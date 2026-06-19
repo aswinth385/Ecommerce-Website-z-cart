@@ -1,3 +1,4 @@
+const { JsonWebTokenError } = require('jsonwebtoken');
 const errorHandler = require('../utils/errorHandler');
 
 module.exports = (err, req, res, next) => {
@@ -24,6 +25,20 @@ if (process.env.NODE_ENV == "production") {
     if (err.name == "CastError") {
         message = `Resource not found: ${err.path}`
         error = new Error(message)
+    }
+
+    if(err.code == 11000){
+        message: `Duplicate ${Object.keys(err.keyvalue)} error`
+        error = new(message)
+    }
+
+    if(err.name == 'JSONWebTokenError'){
+        message: `JSON web token is invalid. Try again`
+        error = new(message)
+    }
+    if(err.name == 'TokenExpiredError'){
+        message: `JSON web token is expried. Try again`
+        error = new(message)
     }
 
     res.status(err.statusCode).json({

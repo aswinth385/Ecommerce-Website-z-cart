@@ -5,13 +5,13 @@ const ApiFeature = require('../utils/apiFeature');
 
 
 // Get all data - /api/v1/products
-    exports. getProducts = catchAsyncError(async (req, res, next)=>{
+    exports.getProducts = catchAsyncError(async (req, res, next)=>{
         const resultPerPage = 2;
             const apiFeature =  new ApiFeature(productModel.find(), req.query)
                                              .search()
                                              .filter()
                                              .paginate(resultPerPage);
-        let findProduct = await apiFeature.query;
+        const findProduct = await apiFeature.query;
         res.status(200).json({
             success:true,
             count:findProduct.length,
@@ -21,7 +21,8 @@ const ApiFeature = require('../utils/apiFeature');
 
 // Creating data - /api/v1/product/new
 exports.newProduct = catchAsyncError(async (req, res, next) =>{
-   let createdProduct = await productModel.create(req.body);
+    req.body.user = req.user.id;
+   const createdProduct = await productModel.create(req.body);
     res.status(201).json({
         success:true,
         createdProduct
@@ -29,21 +30,21 @@ exports.newProduct = catchAsyncError(async (req, res, next) =>{
 })
 
 // Get single data -/api/v1/product/:id
-exports.getSingleProduct =async (req, res, next)=> {
-    let singleProduct = await productModel.findById(req.params.id);
+exports.getSingleProduct =catchAsyncError(async (req, res, next)=> {
+    const singleProduct = await productModel.findById(req.params.id);
     
     if(!singleProduct){
       return next(new errorHandler("Product not found ", 404))
     }
 
-    res.status(201).json({
+    res.status(200).json({
         success: true,
         singleProduct
     })
-}
+})
 
 // updata data -/api/v1/product/:id
-exports.updateProduct =async (req, res, next)=> {
+exports.updateProduct =catchAsyncError(async (req, res, next)=> {
     let product = await productModel.findById(req.params.id);
     
     if(!product){
@@ -58,15 +59,15 @@ exports.updateProduct =async (req, res, next)=> {
         runValidators:true
     })
 
-    res.status(201).json({
+    res.status(200).json({
         success: true,
         product
     })
-}
+})
 
 // delete data -/api/v1/product/:id
-exports.deleteProduct =async (req, res, next)=> {
-    let product = await productModel.findById(req.params.id);
+exports.deleteProduct =catchAsyncError(async (req, res, next)=> {
+    const product = await productModel.findById(req.params.id);
     
     if(!product){
         return res.status(404).json({
@@ -79,6 +80,6 @@ exports.deleteProduct =async (req, res, next)=> {
 
     res.status(200).json({
         success: true,
-        message:"Product Deleted!"
+        message:"Product Delete!"
     })
-}
+})
